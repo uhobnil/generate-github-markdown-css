@@ -58,6 +58,11 @@ function extractStyles(rules, cssText, {extraAllowableClasses = []} = {}) {
 			declaration.value = declaration.value.replace(/var\(([^,]+),\s*(var\(--color-.+?\))\)/, 'var($1)');
 		}
 
+		// 'calc(var(--base-size-8)*-1);' -> 'calc(var(--base-size-8)* -1);'
+		if (/(\*\s*)-(\d)/g.test(declaration.value)) {
+			declaration.value = declaration.value.replaceAll(/(\*\s*)-(\d)/g, '* -$2');
+		}
+
 		// '-webkit-appearance: x' << 'appearance: x'
 		if (declaration.prop === '-webkit-appearance') {
 			declaration.after(postcss.decl({prop: 'appearance', value: declaration.value}));
